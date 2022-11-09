@@ -6,6 +6,9 @@ public class TypeProductModel {
 	
 	private String nameType;
 	
+	public TypeProductModel() {
+
+	}
 
 	public TypeProductModel(int id, String nameType) {
 		super();

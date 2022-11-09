@@ -37,9 +37,6 @@ public class TypeProduct extends JFrame {
 	private JTextField txtID;
 	private JTextField txtType;
 	private JScrollPane scrollPane;
-	private DefaultTableModel tbDefaultTableModel;
-	private ConnectDB connectDB;
-	private PreparedStatement preparedStatement;
 
 	/**
 	 * Launch the application.
@@ -184,8 +181,8 @@ public class TypeProduct extends JFrame {
 		List<TypeProductModel> typeProductModels = TypeDTO.getListTypeProduct();
 		String[][] typeProductData = new String[typeProductModels.size()][2];
 		for (int i = 0; i < typeProductModels.size(); i++) {
+			TypeProductModel productModel = typeProductModels.get(i);
 			for (int j = 0; j < 2; j++) {
-				TypeProductModel productModel = typeProductModels.get(i);
 				if (j == 0) {
 					typeProductData[i][j] = String.valueOf(productModel.getId());
 				} else if (j == 1) {

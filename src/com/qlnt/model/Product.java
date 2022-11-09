@@ -1,7 +1,5 @@
 package com.qlnt.model;
 
-import java.util.List;
-
 public class Product {
 	private int id;
 
@@ -9,13 +7,13 @@ public class Product {
 
 	private String image;
 
-	private List<Storage> storageId;
+	private Storage storage;
 
-	private List<TypeProductModel> typeId;
+	private TypeProductModel typeProduct;
 
 	private String brand;
 
-	private String quantity;
+	private int quantity;
 
 	private int price;
 
@@ -43,14 +41,6 @@ public class Product {
 		this.image = image;
 	}
 
-	public List<Storage> getStorageId() {
-		return storageId;
-	}
-
-	public void setStorageId(List<Storage> storageId) {
-		this.storageId = storageId;
-	}
-
 	public String getBrand() {
 		return brand;
 	}
@@ -59,11 +49,11 @@ public class Product {
 		this.brand = brand;
 	}
 
-	public String getQuantity() {
+	public int getQuantity() {
 		return quantity;
 	}
 
-	public void setQuantity(String quantity) {
+	public void setQuantity(int quantity) {
 		this.quantity = quantity;
 	}
 
@@ -75,12 +65,20 @@ public class Product {
 		this.price = price;
 	}
 
-	public List<TypeProductModel> getTypeId() {
-		return typeId;
+	public Storage getStorage() {
+		return storage;
 	}
 
-	public void setTypeId(List<TypeProductModel> typeId) {
-		this.typeId = typeId;
+	public void setStorage(Storage storage) {
+		this.storage = storage;
+	}
+
+	public TypeProductModel getTypeProduct() {
+		return typeProduct;
+	}
+
+	public void setTypeProduct(TypeProductModel typeProduct) {
+		this.typeProduct = typeProduct;
 	}
 
 }

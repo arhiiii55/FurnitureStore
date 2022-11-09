@@ -88,9 +88,4 @@ public class TypeDTO {
 		return result;
 	}
 
-	public static void main(String[] args) {
-		TypeDTO typeDTO = new TypeDTO();
-		typeDTO.getListTypeProduct();
-	}
-
 }
