@@ -12,6 +12,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Vector;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -35,6 +36,7 @@ public class TypeProduct extends JFrame {
 	private JTable table;
 	private JTextField txtID;
 	private JTextField txtType;
+	private JScrollPane scrollPane;
 	private DefaultTableModel tbDefaultTableModel;
 	private ConnectDB connectDB;
 	private PreparedStatement preparedStatement;
@@ -67,26 +69,11 @@ public class TypeProduct extends JFrame {
 		setContentPane(contentPane);
 		contentPane.setLayout(null);
 
-		JScrollPane scrollPane = new JScrollPane();
+		scrollPane = new JScrollPane();
 		scrollPane.setBounds(249, 10, 369, 250);
 		contentPane.add(scrollPane);
 
-		table = new JTable();
-		List<TypeProductModel> typeProductModels = TypeDTO.getListTypeProduct();
-		String[][] typeProductData = new String[typeProductModels.size()][2];
-		for (int i = 0; i < typeProductModels.size(); i++) {
-			for (int j = 0; j < 2; j++) {
-				TypeProductModel productModel = typeProductModels.get(i);
-				if (j == 0) {
-					typeProductData[i][j] = String.valueOf(productModel.getId());
-				} else if (j == 1) {
-					typeProductData[i][j] = productModel.getNameType();
-				}
-			}
-		}
-		table.setModel(new DefaultTableModel(typeProductData, new String[] { "ID", "Loại" }));
-		table.setFont(new Font("Tahoma", Font.PLAIN, 15));
-		scrollPane.setViewportView(table);
+		showTypeProductData();
 
 		JLabel lblNewLabel = new JLabel("Danh mục sản phẩm");
 		lblNewLabel.setIcon(new ImageIcon("D:\\Projects\\Java\\QuanliHH\\src\\img\\app.png"));
@@ -107,26 +94,25 @@ public class TypeProduct extends JFrame {
 		contentPane.add(txtType);
 
 		JButton btnAdd = new JButton("Thêm");
-		btnAdd.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				List<TypeProductModel> typeProductModels = TypeDTO.getListTypeProduct();
-				JFrame typeProductFrame = new JFrame();
-
-				List<String> listString = new ArrayList<>();
-				for (TypeProductModel typeProductModel : typeProductModels) {
-					listString.add(typeProductModel.getNameType());
-				}
-				typeProductFrame.setDefaultCloseOperation(EXIT_ON_CLOSE);
-				typeProductFrame.setLocationRelativeTo(null);
-				typeProductFrame.setVisible(true);
-//				TypeController.TypeAction();
-//				System.exit(0);
-			}
-		});
 		btnAdd.setIcon(new ImageIcon("D:\\Projects\\Java\\QuanliHH\\src\\img\\plus (1).png"));
 		btnAdd.setBackground(SystemColor.text);
 		btnAdd.setFont(new Font("Tahoma", Font.PLAIN, 15));
 		btnAdd.setBounds(10, 180, 112, 37);
+		btnAdd.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				try {
+					int id = Integer.parseInt(txtID.getText());
+					String nameType = txtType.getText();
+					if (TypeDTO.insertTypeProduct(id, nameType)) {
+						showTypeProductData();
+					}
+				} catch (Exception e2) {
+					e2.printStackTrace();
+				}
+			}
+		});
 		contentPane.add(btnAdd);
 
 		JButton btnEdit = new JButton("Sửa");
@@ -134,14 +120,46 @@ public class TypeProduct extends JFrame {
 		btnEdit.setBackground(SystemColor.text);
 		btnEdit.setFont(new Font("Tahoma", Font.PLAIN, 15));
 		btnEdit.setBounds(132, 180, 106, 37);
+		btnEdit.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				try {
+					int id = Integer.parseInt(txtID.getText());
+					String nameType = txtType.getText();
+					if (TypeDTO.updateTypeProduct(id, nameType)) {
+						showTypeProductData();
+					}
+				} catch (Exception e2) {
+					e2.printStackTrace();
+				}
+			}
+		});
 		contentPane.add(btnEdit);
 
-		JButton BtnDel = new JButton("Xoá danh mục");
-		BtnDel.setIcon(new ImageIcon("D:\\Projects\\Java\\QuanliHH\\src\\img\\trash.png"));
-		BtnDel.setBackground(SystemColor.text);
-		BtnDel.setFont(new Font("Tahoma", Font.PLAIN, 15));
-		BtnDel.setBounds(38, 223, 179, 37);
-		contentPane.add(BtnDel);
+		JButton btnDel = new JButton("Xoá danh mục");
+		btnDel.setIcon(new ImageIcon("D:\\Projects\\Java\\QuanliHH\\src\\img\\trash.png"));
+		btnDel.setBackground(SystemColor.text);
+		btnDel.setFont(new Font("Tahoma", Font.PLAIN, 15));
+		btnDel.setBounds(38, 223, 179, 37);
+		btnDel.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				try {
+					int column = 0;
+					int row = table.getSelectedRow();
+					String value = table.getModel().getValueAt(row, column).toString();
+					int id = Integer.parseInt(value);
+					if (TypeDTO.deleteTypeProductById(id)) {
+						showTypeProductData();
+					}
+				} catch (Exception e2) {
+					e2.printStackTrace();
+				}
+			}
+		});
+		contentPane.add(btnDel);
 
 		JLabel lblNewLabel_1 = new JLabel("ID");
 		lblNewLabel_1.setFont(new Font("Tahoma", Font.PLAIN, 15));
@@ -161,4 +179,22 @@ public class TypeProduct extends JFrame {
 		contentPane.add(btnBack_1);
 	}
 
+	private void showTypeProductData() {
+		table = new JTable();
+		List<TypeProductModel> typeProductModels = TypeDTO.getListTypeProduct();
+		String[][] typeProductData = new String[typeProductModels.size()][2];
+		for (int i = 0; i < typeProductModels.size(); i++) {
+			for (int j = 0; j < 2; j++) {
+				TypeProductModel productModel = typeProductModels.get(i);
+				if (j == 0) {
+					typeProductData[i][j] = String.valueOf(productModel.getId());
+				} else if (j == 1) {
+					typeProductData[i][j] = productModel.getNameType();
+				}
+			}
+		}
+		table.setModel(new DefaultTableModel(typeProductData, new String[] { "ID", "Loại" }));
+		table.setFont(new Font("Tahoma", Font.PLAIN, 15));
+		scrollPane.setViewportView(table);
+	}
 }

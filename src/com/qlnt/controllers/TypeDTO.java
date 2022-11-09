@@ -20,7 +20,7 @@ public class TypeDTO {
 			connection = ConnectDB.getConnection();
 			PreparedStatement preparedStatement = connection.prepareStatement(sql);
 			ResultSet resultSet = preparedStatement.executeQuery();
-			while(resultSet.next()) {
+			while (resultSet.next()) {
 				TypeProductModel model = new TypeProductModel(resultSet.getInt("id"), resultSet.getString("name_type"));
 				typeProductModels.add(model);
 			}
@@ -32,8 +32,64 @@ public class TypeDTO {
 		return typeProductModels;
 	}
 
+	public static boolean insertTypeProduct(int id, String nameType) {
+		boolean result = false;
+		String sql = "INSERT INTO `type_product` (id,name_type) VALUES (?,?);";
+		Connection connection = null;
+		try {
+			connection = ConnectDB.getConnection();
+			PreparedStatement preparedStatement = connection.prepareStatement(sql);
+			preparedStatement.setInt(1, id);
+			preparedStatement.setString(2, nameType);
+			preparedStatement.executeUpdate();
+			result = true;
+		} catch (ClassNotFoundException | SQLException e) {
+			e.printStackTrace();
+		} finally {
+			ConnectDB.closeQuietly(connection);
+		}
+		return result;
+	}
+
+	public static boolean updateTypeProduct(int id, String nameType) {
+		boolean result = false;
+		String sql = "UPDATE `type_product` SET name_type = ? WHERE id = ?";
+		Connection connection = null;
+		try {
+			connection = ConnectDB.getConnection();
+			PreparedStatement preparedStatement = connection.prepareStatement(sql);
+			preparedStatement.setString(1, nameType);
+			preparedStatement.setInt(2, id);
+			preparedStatement.executeUpdate();
+			result = true;
+		} catch (ClassNotFoundException | SQLException e) {
+			e.printStackTrace();
+		} finally {
+			ConnectDB.closeQuietly(connection);
+		}
+		return result;
+	}
+	
+	public static boolean deleteTypeProductById(int id) {
+		boolean result = false;
+		String sql = "DELETE FROM `type_product` WHERE id = ?";
+		Connection connection = null;
+		try {
+			connection = ConnectDB.getConnection();
+			PreparedStatement preparedStatement = connection.prepareStatement(sql);
+			preparedStatement.setInt(1, id);
+			preparedStatement.executeUpdate();
+			result = true;
+		} catch (ClassNotFoundException | SQLException e) {
+			e.printStackTrace();
+		} finally {
+			ConnectDB.closeQuietly(connection);
+		}
+		return result;
+	}
+
 	public static void main(String[] args) {
-		TypeDTO typeDTO = new TypeDTO() ;
+		TypeDTO typeDTO = new TypeDTO();
 		typeDTO.getListTypeProduct();
 	}
 
