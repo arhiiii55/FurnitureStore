@@ -1,40 +1,49 @@
 package com.qlnt.model;
 
 import java.sql.Date;
-import java.util.List;
 
 public class Inspection {
 
-	private List<Staff> staffId;
+	private int id;
 
-	private List<Product> productId;
+	private Staff staff;
+
+	private Product product;
 
 	private String checkStatus;
 
 	private Date checkDate;
 
-	public List<Staff> getStaffId() {
-		return staffId;
+	public int getId() {
+		return id;
 	}
 
-	public void setStaffId(List<Staff> staffId) {
-		this.staffId = staffId;
+	public void setId(int id) {
+		this.id = id;
 	}
 
-	public List<Product> getProductId() {
-		return productId;
+	public Staff getStaff() {
+		return staff;
 	}
 
-	public void setProductId(List<Product> productId) {
-		this.productId = productId;
+	public void setStaff(Staff staff) {
+		this.staff = staff;
 	}
 
-	public String getCheckStatu() {
+	public Product getProduct() {
+		return product;
+	}
+
+	public void setProduct(Product product) {
+		this.product = product;
+	}
+
+	public String getCheckStatus() {
 		return checkStatus;
 	}
 
-	public void setCheckStatu(String checkStatu) {
-		this.checkStatus = checkStatu;
+	public void setCheckStatus(String checkStatus) {
+		this.checkStatus = checkStatus;
 	}
 
 	public Date getCheckDate() {
@@ -43,12 +52,6 @@ public class Inspection {
 
 	public void setCheckDate(Date checkDate) {
 		this.checkDate = checkDate;
-	}
-
-	@Override
-	public String toString() {
-		return "Inspection [staffId=" + staffId + ", productId=" + productId + ", checkStatu=" + checkStatus
-				+ ", checkDate=" + checkDate + "]";
 	}
 
 }

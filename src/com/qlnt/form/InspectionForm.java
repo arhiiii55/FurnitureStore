@@ -10,15 +10,29 @@ import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
 
 import com.qlnt.constant.Constant;
+import com.qlnt.controllers.InspectionDTO;
+import com.qlnt.controllers.ProductDTO;
+import com.qlnt.controllers.TypeDTO;
+import com.qlnt.model.Inspection;
+import com.qlnt.model.Product;
+import com.qlnt.model.TypeProductModel;
 
 import java.awt.Font;
 import javax.swing.JLabel;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.ImageIcon;
 import javax.swing.JTextField;
 import javax.swing.JTextArea;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
+
 import java.awt.SystemColor;
 import java.awt.event.ActionListener;
+import java.sql.Date;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.util.Calendar;
+import java.util.List;
 import java.awt.event.ActionEvent;
 
 public class InspectionForm extends JFrame {
@@ -34,9 +48,11 @@ public class InspectionForm extends JFrame {
 	private JLabel lblNewLabel_3;
 	private JLabel lblNewLabel_4;
 	private JButton btnAdd;
-	private JButton BtnEdit;
-	private JButton BtnDel;
+	private JButton btnEdit;
+	private JButton btnDel;
 	private JButton btnNewButton_1;
+	private JScrollPane scrollPane;
+	private JComboBox<String> comboBoxStaff, comboBoxProduct;
 
 	/**
 	 * Launch the application.
@@ -66,15 +82,11 @@ public class InspectionForm extends JFrame {
 		setContentPane(contentPane);
 		contentPane.setLayout(null);
 
-		JScrollPane scrollPane = new JScrollPane();
+		scrollPane = new JScrollPane();
 		scrollPane.setBounds(305, 10, 483, 470);
 		contentPane.add(scrollPane);
 
-		table = new JTable();
-		table.setFont(new Font("Tahoma", Font.PLAIN, 15));
-		table.setModel(new DefaultTableModel(new Object[][] {},
-				new String[] { "Nh\u00E2n vi\u00EAn KT", "S\u1EA3n ph\u1EA9m", "Ghi Ch\u00FA", "Ng\u00E0y KT" }));
-		scrollPane.setViewportView(table);
+		showInspectionData();
 
 		JLabel lblNewLabel = new JLabel("Kiểm tra sản phẩm");
 		lblNewLabel.setIcon(new ImageIcon(Constant.URL_IMAGE + "product-research.png"));
@@ -82,20 +94,9 @@ public class InspectionForm extends JFrame {
 		lblNewLabel.setBounds(42, 50, 227, 39);
 		contentPane.add(lblNewLabel);
 
-		txtNV = new JTextField();
-		txtNV.setBounds(118, 118, 166, 32);
-		contentPane.add(txtNV);
-		txtNV.setColumns(10);
+		showStaffData();
 
-		txtSP = new JTextField();
-		txtSP.setColumns(10);
-		txtSP.setBounds(118, 171, 166, 32);
-		contentPane.add(txtSP);
-
-		txtDate = new JTextField();
-		txtDate.setColumns(10);
-		txtDate.setBounds(118, 280, 166, 32);
-		contentPane.add(txtDate);
+		showProductData();
 
 		txtNote = new JTextField();
 		txtNote.setColumns(10);
@@ -120,41 +121,119 @@ public class InspectionForm extends JFrame {
 		lblNewLabel_3.setBounds(20, 225, 76, 25);
 		contentPane.add(lblNewLabel_3);
 
-		lblNewLabel_4 = new JLabel("Ngày KT");
-		lblNewLabel_4.setLabelFor(txtDate);
-		lblNewLabel_4.setFont(new Font("Tahoma", Font.PLAIN, 15));
-		lblNewLabel_4.setBounds(20, 281, 76, 25);
-		contentPane.add(lblNewLabel_4);
-
 		btnAdd = new JButton("Thêm");
 		btnAdd.setIcon(new ImageIcon(Constant.URL_IMAGE + "plus (1).png"));
 		btnAdd.setBackground(SystemColor.text);
 		btnAdd.setFont(new Font("Tahoma", Font.PLAIN, 15));
-		btnAdd.setBounds(42, 342, 109, 39);
-		contentPane.add(btnAdd);
+		btnAdd.setBounds(42, 281, 109, 39);
+		btnAdd.addActionListener(new ActionListener() {
 
-		BtnEdit = new JButton("Sửa");
-		BtnEdit.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
+				try {
+					int staffId = splitId(comboBoxStaff.getSelectedItem().toString());
+					int productId = splitId(comboBoxProduct.getSelectedItem().toString());
+					String note = txtNote.getText();
+					Date checkDate = new Date(Calendar.getInstance().getTime().getTime());
+					if (InspectionDTO.insertInspection(staffId, productId, note, checkDate)) {
+						showInspectionData();
+					}
+				} catch (Exception e2) {
+					e2.printStackTrace();
+				}
 			}
 		});
-		BtnEdit.setIcon(new ImageIcon(Constant.URL_IMAGE + "(2).png"));
-		BtnEdit.setBackground(SystemColor.text);
-		BtnEdit.setFont(new Font("Tahoma", Font.PLAIN, 15));
-		BtnEdit.setBounds(175, 342, 109, 39);
-		contentPane.add(BtnEdit);
+		contentPane.add(btnAdd);
 
-		BtnDel = new JButton("Xoá");
-		BtnDel.setIcon(new ImageIcon(Constant.URL_IMAGE + "trash.png"));
-		BtnDel.setBackground(SystemColor.text);
-		BtnDel.setFont(new Font("Tahoma", Font.PLAIN, 15));
-		BtnDel.setBounds(42, 408, 238, 39);
-		contentPane.add(BtnDel);
+		btnEdit = new JButton("Sửa");
+		btnEdit.setIcon(new ImageIcon(Constant.URL_IMAGE + "(2).png"));
+		btnEdit.setBackground(SystemColor.text);
+		btnEdit.setFont(new Font("Tahoma", Font.PLAIN, 15));
+		btnEdit.setBounds(175, 281, 109, 39);
+		btnEdit.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				try {
+					int column = 0;
+					int row = table.getSelectedRow();
+					String value = table.getModel().getValueAt(row, column).toString();
+					int id = Integer.parseInt(value);
+					String note = txtNote.getText();
+					if (InspectionDTO.updateInspection(id, note)) {
+						showInspectionData();
+					}
+				} catch (Exception e2) {
+					e2.printStackTrace();
+				}
+			}
+		});
+		contentPane.add(btnEdit);
 
 		btnNewButton_1 = new JButton("Back");
 		btnNewButton_1.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		btnNewButton_1.setBackground(SystemColor.text);
 		btnNewButton_1.setBounds(0, 10, 85, 21);
 		contentPane.add(btnNewButton_1);
+	}
+
+	private void showStaffData() {
+		comboBoxStaff = new JComboBox();
+		comboBoxStaff.setBackground(SystemColor.text);
+		comboBoxStaff.setFont(new Font("Tahoma", Font.PLAIN, 15));
+		comboBoxStaff.setBounds(118, 118, 166, 28);
+		List<TypeProductModel> typeProductModels = TypeDTO.getListTypeProduct();
+		String[] typeProductData = new String[typeProductModels.size()];
+		for (int i = 0; i < typeProductModels.size(); i++) {
+			TypeProductModel productModel = typeProductModels.get(i);
+			typeProductData[i] = productModel.getId() + " - " + productModel.getNameType();
+		}
+		comboBoxStaff.setModel(new DefaultComboBoxModel(typeProductData));
+		contentPane.add(comboBoxStaff);
+	}
+
+	private void showProductData() {
+		comboBoxProduct = new JComboBox();
+		comboBoxProduct.setBackground(SystemColor.text);
+		comboBoxProduct.setFont(new Font("Tahoma", Font.PLAIN, 15));
+		comboBoxProduct.setBounds(118, 171, 166, 28);
+		List<Product> products = ProductDTO.getListProduct();
+		String[] productData = new String[products.size()];
+		for (int i = 0; i < products.size(); i++) {
+			Product productModel = products.get(i);
+			productData[i] = productModel.getId() + " - " + productModel.getName();
+		}
+		comboBoxProduct.setModel(new DefaultComboBoxModel(productData));
+		contentPane.add(comboBoxProduct);
+	}
+
+	private void showInspectionData() {
+		table = new JTable();
+		table.setFont(new Font("Tahoma", Font.PLAIN, 15));
+		List<Inspection> inspections = InspectionDTO.getListInspection();
+		String[][] inspectionData = new String[inspections.size()][5];
+		for (int i = 0; i < inspections.size(); i++) {
+			Inspection inspection = inspections.get(i);
+			for (int j = 0; j < 5; j++) {
+				if (j == 0) {
+					inspectionData[i][j] = String.valueOf(inspection.getId());
+				} else if (j == 1) {
+					inspectionData[i][j] = inspection.getStaff().getFullNameString();
+				} else if (j == 2) {
+					inspectionData[i][j] = inspection.getProduct().getName();
+				} else if (j == 3) {
+					inspectionData[i][j] = inspection.getCheckStatus();
+				} else if (j == 4) {
+					inspectionData[i][j] = inspection.getCheckDate().toLocaleString();
+				}
+			}
+		}
+		table.setModel(new DefaultTableModel(inspectionData,
+				new String[] { "ID", "Nhân viên KT", "Sản phẩm", "Ghi Chú", "Ngày KT" }));
+		scrollPane.setViewportView(table);
+	}
+
+	private int splitId(String data) {
+		String spltData = data.split("-")[0].trim();
+		return Integer.parseInt(spltData);
 	}
 }
